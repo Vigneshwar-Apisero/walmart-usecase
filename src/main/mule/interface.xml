@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <http:listener-config name="walmart-usecase-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8080" />
+    </http:listener-config>
+    <apikit:config name="walmart-usecase-config" api="walmart-usecase.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="walmart-usecase-main">
+        <http:listener config-ref="walmart-usecase-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="walmart-usecase-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\products\getDetails:walmart-usecase-config">
+		<flow-ref doc:name="Flow Reference" doc:id="a34cc8d0-d9bf-40fc-b3e0-5b91ec199b96" name="GET_products-getDetails"/>
+    </flow>
+    <flow name="get:\products\list:walmart-usecase-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  productList: [
+    {
+      productId: "74PHT29UCA07",
+      usItemId: "384035170",
+      productType: "REGULAR",
+      title: "Crest Scope Outlast Mouthwash, Long Lasting Mint, 1 L, 2 Pack",
+      description: "<li>Keeps breath feeling fresh up to 5x longer vs. brushing alone</li><li>Speak confidently with the #1 fresh breath brand among non-drug mouthwashes** **P&G Calculation based on Nielsen US reported</li>",
+      imageUrl: "https://i5.walmartimages.com/asr/88cc5cfa-0902-4909-b9da-5df6cd418fad.6a3261dd042ecb193b183c33254a648e.jpeg",
+      productPageUrl: "/ip/Crest-Scope-Outlast-Mouthwash-Long-Lasting-Mint-1-L-2-Pack/384035170?wpa_bd=&wpa_pg_seller_id=F55CDC31AB754BB68FE0B39041159D63&wpa_ref_id=wpaqs:O9KIRkt70shqpojaCxcMvQDip15T3cR2Vuh0gHneN1BIYPgQAsp6jmUmkwzZFwGZ9YYJoTUwhNTE3zkULQJUAzYxQjPAB4JWcAmzDoEBnmvSPXTxpF0RJyPFS7zhwBliIjsU8hF9qE6QNDyqgfbmbwu5Co3cc5c7I5nTxoWhyeOu6wSpl3n0tcU76ujZuBrv4t1OCtD9WKsGqRyfP49k9w&wpa_tag=__tag__&wpa_aux_info=__aux_info__&wpa_pos=1&wpa_plmt=__plmt__&wpa_aduid=__aduid__",
+      department: "Personal Care",
+      customerRating: 4.8,
+      numReviews: 99,
+      specialOfferBadge: "bestseller",
+      specialOfferText: "Best Seller",
+      specialOfferLink: "sort=best_seller&cat_id=1005862_1007221_1007360_8361519_5654027&prg=mWeb",
+      sellerId: "F55CDC31AB754BB68FE0B39041159D63",
+      sellerName: "Walmart.com",
+      enableAddToCart: true,
+      canAddToCart: true,
+      cta: [
+        "ATC"
+      ],
+      showPriceAsAvailable: true,
+      seeAllName: "All Dry Mouth Mouthwash",
+      seeAllLink: "sort=best_seller&cat_id=1005862_1007221_1007360_8361519_5654027&prg=mWeb",
+      itemClassId: "1",
+      ppu: {
+        unit: "each",
+        amount: 0.103,
+        currencyCode: "USD"
+      },
+      primaryOffer: {
+        offerId: "DCFFA990DE7241A8A07014C4C3E880A1",
+        offerPrice: 6.97,
+        currencyCode: "USD",
+        unitPriceDisplayCondition: "(10.3 ¢/fl oz)"
+      },
+      fulfillment: {
+        isS2H: true,
+        isS2S: false,
+        isSOI: false,
+        isPUT: true,
+        s2HDisplayFlags: [
+          "THRESHOLD_SHIPPING"
+        ],
+        s2SDisplayFlags: [
+          "PICKUP_TODAY"
+        ],
+        thresholdAmount: 35.0,
+        thresholdCurrencyCode: "USD"
+      },
+      inventory: {
+        availableOnline: true
+      },
+      sourceSystem: "WALMART_SC",
+      wpa: {
+        wpa_bd: "",
+        wpa_pg_seller_id: "F55CDC31AB754BB68FE0B39041159D63",
+        wpa_ref_id: "wpaqs:O9KIRkt70shqpojaCxcMvQDip15T3cR2Vuh0gHneN1BIYPgQAsp6jmUmkwzZFwGZ9YYJoTUwhNTE3zkULQJUAzYxQjPAB4JWcAmzDoEBnmvSPXTxpF0RJyPFS7zhwBliIjsU8hF9qE6QNDyqgfbmbwu5Co3cc5c7I5nTxoWhyeOu6wSpl3n0tcU76ujZuBrv4t1OCtD9WKsGqRyfP49k9w",
+        wpa_tag: "__tag__",
+        wpa_aux_info: "__aux_info__",
+        wpa_pos: 1
+      },
+      quantity: 3866.0,
+      brand: [
+        "Scope"
+      ],
+      geoItemClassification: "NETWORK_GEO",
+      giftingEligible: true,
+      wmtgPricePerUnitQuantity: "67.6",
+      standardUpc: [
+        "00037000771128"
+      ],
+      isHeartable: true,
+      countPerPack: 2,
+      isWMPlusShipping: true,
+      marketPlaceItem: false,
+      premiumBrand: false,
+      wfsEnabled: false,
+      shippingPassEligible: false,
+      pickupDiscountEligible: false,
+      virtualPack: false,
+      preOrderAvailable: false,
+      blitzItem: false,
+      is_limited_qty: false
+    }, 
+    {
+      productId: "41IKU5PHJ3JA",
+      usItemId: "857266140",
+      productType: "VARIANT",
+      title: "Garnier Whole Blends Honey Treasures Shampoo and Conditioner Set, For Damaged Hair, 2 COUNT",
+      description: "Whole Blends Honey Treasures 2pk S&c",
+      imageUrl: "https://i5.walmartimages.com/asr/2630e0c1-b774-4685-bee9-05083ee15869_3.8c8292ef58a1ea96cd94a494c9fc0e3e.jpeg",
+      productPageUrl: "/ip/Garnier-Whole-Blends-Honey-Treasures-Shampoo-and-Conditioner-Set-For-Damaged-Hair-2-COUNT/857266140?wpa_bd=&wpa_pg_seller_id=F55CDC31AB754BB68FE0B39041159D63&wpa_ref_id=wpaqs:DaLkTk2jNgRCOBqL5DKD0S4jUCOWurY2Vl0_IDkInCNIYPgQAsp6jmUmkwzZFwGZ9YYJoTUwhNTE3zkULQJUA8AgUQQQh5PIPqblOqDR6Fe7UT7fPlOMWTZJlQeU_SIUIjsU8hF9qE6QNDyqgfbmbwu5Co3cc5c7I5nTxoWhyeOu6wSpl3n0tcU76ujZuBrv4t1OCtD9WKsGqRyfP49k9w&wpa_tag=__tag__&wpa_aux_info=__aux_info__&wpa_pos=2&wpa_plmt=__plmt__&wpa_aduid=__aduid__",
+      department: "Beauty",
+      customerRating: 4.6,
+      numReviews: 275,
+      specialOfferBadge: "bestseller",
+      specialOfferText: "Best Seller",
+      specialOfferLink: "sort=best_seller&cat_id=1085666_3147628_2103072_8825321&prg=mWeb",
+      sellerId: "F55CDC31AB754BB68FE0B39041159D63",
+      sellerName: "Walmart.com",
+      enableAddToCart: true,
+      canAddToCart: false,
+      cta: [
+        "CHOOSE_OPTION"
+      ],
+      showPriceAsAvailable: true,
+      seeAllName: "All Shampoo and Conditioner",
+      seeAllLink: "sort=best_seller&cat_id=1085666_3147628_2103072_8825321&prg=mWeb",
+      itemClassId: "1",
+      primaryOffer: {
+        offerId: "48961D2DA8864C8B83D758760D0297D4",
+        offerPrice: 5.97,
+        currencyCode: "USD",
+        unitPriceDisplayCondition: "(\$5.97/oz)"
+      },
+      fulfillment: {
+        isS2H: true,
+        isS2S: false,
+        isSOI: false,
+        isPUT: true,
+        s2SDisplayFlags: [
+          "PICKUP_TODAY"
+        ]
+      },
+      inventory: {
+        availableOnline: true
+      },
+      wpa: {
+        wpa_bd: "",
+        wpa_pg_seller_id: "F55CDC31AB754BB68FE0B39041159D63",
+        wpa_ref_id: "wpaqs:DaLkTk2jNgRCOBqL5DKD0S4jUCOWurY2Vl0_IDkInCNIYPgQAsp6jmUmkwzZFwGZ9YYJoTUwhNTE3zkULQJUA8AgUQQQh5PIPqblOqDR6Fe7UT7fPlOMWTZJlQeU_SIUIjsU8hF9qE6QNDyqgfbmbwu5Co3cc5c7I5nTxoWhyeOu6wSpl3n0tcU76ujZuBrv4t1OCtD9WKsGqRyfP49k9w",
+        wpa_tag: "__tag__",
+        wpa_aux_info: "__aux_info__",
+        wpa_pos: 2
+      },
+      quantity: 6812.0,
+      brand: [
+        "Garnier"
+      ],
+      geoItemClassification: "NETWORK_GEO",
+      wmtgPricePerUnitQuantity: "1.00",
+      standardUpc: [
+        "00603084565764"
+      ],
+      isHeartable: false,
+      isWMPlusShipping: true,
+      marketPlaceItem: false,
+      premiumBrand: false,
+      wfsEnabled: false,
+      twoDayShippingEligible: true,
+      shippingPassEligible: false,
+      pickupDiscountEligible: false,
+      virtualPack: false,
+      preOrderAvailable: false,
+      blitzItem: false,
+      is_limited_qty: false
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\stores\list:walmart-usecase-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  storeList: [
+    {
+      distance: 0.43,
+      id: 3341,
+      displayName: "Dallas Neighborhood Market",
+      storeType: {
+        id: "4",
+        displayName: "Neighborhood Market"
+      },
+      address: {
+        postalCode: "75204",
+        address: "2305 N Central Expy",
+        city: "Dallas",
+        state: "TX",
+        country: "US"
+      },
+      operationalHours: {
+        open24Hours: null,
+        todayHrs: {
+          startHr: "06:00",
+          endHr: "23:00",
+          openFullDay: null
+        },
+        tomorrowHrs: {
+          startHr: "06:00",
+          endHr: "23:00",
+          openFullDay: null
+        }
+      },
+      geoPoint: {
+        latitude: 32.800647,
+        longitude: -96.794125
+      },
+      timeZone: "America/Chicago"
+    }, 
+    {
+      distance: 4.76,
+      id: 5823,
+      displayName: "Dallas Supercenter",
+      storeType: {
+        id: "1",
+        displayName: "Supercenter"
+      },
+      address: {
+        postalCode: "75231",
+        address: "6185 Retail Rd",
+        city: "Dallas",
+        state: "TX",
+        country: "US"
+      },
+      operationalHours: {
+        open24Hours: null,
+        todayHrs: {
+          startHr: "06:00",
+          endHr: "23:00",
+          openFullDay: null
+        },
+        tomorrowHrs: {
+          startHr: "06:00",
+          endHr: "23:00",
+          openFullDay: null
+        }
+      },
+      geoPoint: {
+        latitude: 32.862849,
+        longitude: -96.754838
+      },
+      timeZone: "America/Chicago"
+    }, 
+    {
+      distance: 5.68,
+      id: 2667,
+      displayName: "Dallas Supercenter",
+      storeType: {
+        id: "1",
+        displayName: "Supercenter"
+      },
+      address: {
+        postalCode: "75228",
+        address: "7401 Samuell Blvd",
+        city: "Dallas",
+        state: "TX",
+        country: "US"
+      },
+      operationalHours: {
+        open24Hours: null,
+        todayHrs: {
+          startHr: "06:00",
+          endHr: "23:00",
+          openFullDay: null
+        },
+        tomorrowHrs: {
+          startHr: "06:00",
+          endHr: "23:00",
+          openFullDay: null
+        }
+      },
+      geoPoint: {
+        latitude: 32.793803,
+        longitude: -96.689232
+      },
+      timeZone: "America/Chicago"
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\stores\list-preferred:walmart-usecase-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  operationalHours: {
+    storeId: "3341",
+    displayName: "Dallas Neighborhood Market",
+    distance: 0.43,
+    phone: "214-953-0460",
+    address: "2305 N Central Expy, Dallas, TX, US (75204)",
+    operationalHours: {
+      saturdayHrs: {
+        startHr: "06:00",
+        endHr: "23:00"
+      },
+      sundayHrs: {
+        startHr: "06:00",
+        endHr: "23:00"
+      },
+      monToFriHrs: {
+        startHr: "06:00",
+        endHr: "23:00"
+      }
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\orders:application\json:walmart-usecase-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  order_id: 10003,
+  store_id: 3341,
+  store_name: "Dallas Neighborhood Market",
+  store_address: "2305 N Central Expy, Dallas, TX, US (75204)",
+  store_distance: 0.43,
+  store_contact_number: "214-953-0460",
+  product_type_id: "3L0GJRKXI29E",
+  quantity: 10
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>

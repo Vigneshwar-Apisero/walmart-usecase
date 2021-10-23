@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="fd347c9a-5f41-47f2-b65e-523e3c9f9b53" >
+		<http:request-connection host="walmart.p.rapidapi.com" protocol="HTTPS"/>
+	</http:request-config>
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="942e4dd7-aa6a-4aff-a5c6-3a26595238e4" i18n="#[payload.data]" />
+	<flow name="GET_products-list" doc:id="d3a2590c-cfef-4745-867e-9af633a8f7a9">
+		<http:listener doc:name="Listener" doc:id="efc450e8-4ee1-4933-92c2-bd13fb602cd9" config-ref="walmart-usecase-httpListenerConfig" path="/products/list"/>
+		<http:request method="GET" doc:name="Request" doc:id="39102c26-f9d7-4ac9-8292-6b0cbca5e72e" config-ref="HTTP_Request_configuration" path="/products/list" >
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	'X-Rapidapi-Key' : '3023a67861msh0eb707c9fd31682p12e9c9jsn4bd95787f3d4',
+	'X-Rapidapi-Host' : 'walmart.p.rapidapi.com'
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="d7775d8b-92a5-4160-9215-47ac0fa9bd93" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	productList : payload.items
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="GET_products-getDetails" doc:id="aaf99e8d-e7b9-442b-9db5-62f8b37efc54" >
+		<http:listener doc:name="Listener" doc:id="21445d4b-ee44-41f4-818e-1ac3a3289754" config-ref="walmart-usecase-httpListenerConfig" path="/products/getDetails" allowedMethods="GET"/>
+		<http:request method="GET" doc:name="Request" doc:id="a242db78-80d4-454b-a2ba-ec5e4632e2fd" config-ref="HTTP_Request_configuration" path="/products/v2/get-details">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	'X-Rapidapi-Key' : '3023a67861msh0eb707c9fd31682p12e9c9jsn4bd95787f3d4',
+	'X-Rapidapi-Host' : 'walmart.p.rapidapi.com'
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	usItemId : attributes.queryParams.usItemId
+}]]]></http:query-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="49a49291-3efd-465e-866c-fcf273afe7c7" >
+			<when expression="#[!isEmpty(payload.data)]">
+				<ee:transform doc:name="Transform Message" doc:id="d006573c-e427-4ed4-b12f-636e1a664376">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	productDetails : payload.data
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise>
+				<ee:transform doc:name="Transform Message" doc:id="e08ecd12-9c6f-44f7-9255-f45fab963eb9" >
+					<ee:message >
+						<ee:set-payload ><![CDATA["Invalid usItemId"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="GET_stores-list" doc:id="11b698d9-a74a-453a-8fa2-5a1b91565c50" >
+		<http:listener doc:name="Listener" doc:id="a6b01809-1f19-4847-87cc-0ea91fde416c" config-ref="walmart-usecase-httpListenerConfig" path="/stores/list"/>
+		<http:request method="GET" doc:name="Request" doc:id="73d93749-d13e-4ae4-bcd5-448efdc27389" config-ref="HTTP_Request_configuration" path="/stores/list" >
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	'X-Rapidapi-Key' : '3023a67861msh0eb707c9fd31682p12e9c9jsn4bd95787f3d4',
+	'X-Rapidapi-Host' : 'walmart.p.rapidapi.com'
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	postalCode : attributes.queryParams.postalCode
+}]]]></http:query-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="da4a8708-e0aa-4093-9ece-0be7862494f8" >
+			<when expression="#[sizeOf(payload.data.storesBySearchTerm.stores)&gt;0]">
+				<ee:transform doc:name="Transform Message" doc:id="c5351cb4-1926-42b1-8ffd-96e2a0dcd21e">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	storeList : payload.data.storesBySearchTerm.stores
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="0c86f077-8241-4124-bf72-351e14167208" >
+					<ee:message >
+						<ee:set-payload ><![CDATA["Invalid Postal code"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="GET_stores-listpreferred" doc:id="e05db664-933a-4258-8875-aecab817e2ba" >
+		<http:listener doc:name="Listener" doc:id="d197bbc7-65bd-4b59-8abf-0d0e22b89ca6" config-ref="walmart-usecase-httpListenerConfig" path="/stores/list-preferred"/>
+		<http:request method="GET" doc:name="Request" doc:id="31ca2999-02fc-4ce5-9113-7d4cc274f03d" config-ref="HTTP_Request_configuration" path="/stores/list-preferred" >
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	'X-Rapidapi-Key' : '3023a67861msh0eb707c9fd31682p12e9c9jsn4bd95787f3d4',
+	'X-Rapidapi-Host' : 'walmart.p.rapidapi.com'
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	preferredStoreId : attributes.queryParams.preferredStoreId,
+	postalCode : attributes.queryParams.postalCode
+}]]]></http:query-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="0e7eadcb-eb23-4f00-ad99-e800f186b451" >
+			<when expression="#[isEmpty(payload.statusCode)]">
+				<ee:transform doc:name="Transform Message" doc:id="ab43c166-aeba-443b-b6a2-1aa1850c5482">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var ps = payload.preferredStore
+var a = ps.address
+---
+{
+	"storeId": ps.storeId,
+    "displayName": ps.displayName,
+    "distance": min(payload.stores.distance),
+    "phone": ps.phone,
+    address : a.address1 ++ ', ' ++ a.city ++ ', ' ++ a.state
+    ++ ', ' ++ a.country ++ ' (' ++ a.postalCode ++ ')',
+    "operationalHours": ps.operationalHours
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="0b2c2e16-333f-4eeb-9ee3-d0aad7b1ce95" >
+					<ee:message >
+						<ee:set-payload ><![CDATA["Invalid Postal code"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>
