@@ -19,6 +19,26 @@
 
 	<build>
 		<plugins>
+		<plugin>
+				<groupId>org.mule.tools.maven</groupId>
+				<artifactId>mule-maven-plugin</artifactId>
+				<version>${mule.maven.plugin.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<cloudHubDeployment>
+						<username>vigneshwar-apisero1</username>
+						<password>Vigneshwar-apisero1</password>
+						<environment>Sandbox</environment>
+						<workers>1</workers>
+						<businessGroup>Apisero</businessGroup>
+						<workerType>Micro</workerType>
+						<applicationName>walmart-vignesh-nikesh</applicationName>
+						<muleVersion>4.4.0</muleVersion>
+						<objectStoreV2>true</objectStoreV2>
+						<uri>https://anypoint.mulesoft.com</uri>
+					</cloudHubDeployment>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
