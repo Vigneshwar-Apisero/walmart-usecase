@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="implementation-suite.xml" />
+	<munit:test name="GET_products-list-test" doc:id="015959ad-7359-4673-b132-95ded4e86f05" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Request" doc:id="2d924a1f-2600-4b74-8a01-9a1c4c7374d4" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="39102c26-f9d7-4ac9-8292-6b0cbca5e72e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://GETproductslisttest\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://GETproductslisttest\mock_attributes.dwl')]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:spy doc:name="Spy Transform Message" doc:id="7d452eaf-f41b-4d52-a42d-8476d21c08b3" processor="ee:transform">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d7775d8b-92a5-4160-9215-47ac0fa9bd93" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:before-call >
+					<munit-tools:assert doc:name="Assert payload" doc:id="178adb27-8fd8-4444-aa7e-8aff78f423c4" message="The payload does not match">
+						<munit-tools:that ><![CDATA[#[%dw 2.0
+import GETproductslisttest::spy_assert_payload
+---
+spy_assert_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:before-call>
+				<munit-tools:after-call >
+					<munit-tools:assert doc:name="Assert payload" doc:id="0492b3a9-25d5-4375-a17a-450798e5d1f6" message="The payload does not match">
+						<munit-tools:that ><![CDATA[#[%dw 2.0
+import GETproductslisttest::spy_assert_payload1
+---
+spy_assert_payload1::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:after-call>
+			</munit-tools:spy>
+			<munit:set-event doc:name="Set Input" doc:id="9cbd0d1c-f430-41a6-bf56-980c804eb03b" >
+				<munit:payload value="#[readUrl('classpath://GETproductslisttest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://GETproductslisttest\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to GET_products-list" doc:id="47467fc6-50ec-4e7d-aacb-efb22ff3b58e" name="GET_products-list"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="4bf3b4b0-2765-43c6-b9ad-3635e4522f21" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import GETproductslisttest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:verify-call doc:name="Verify Transform Message" doc:id="bd974f67-08ce-4396-bcf0-b6c95c56b7b9" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d7775d8b-92a5-4160-9215-47ac0fa9bd93" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="GET_products-getDetails-test" doc:id="1d5c5d0e-56d4-40e5-8009-2a4091fc7196" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Request" doc:id="419c641d-a969-4e15-9947-7b9c6ef57da0" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="a242db78-80d4-454b-a2ba-ec5e4632e2fd" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://GETproductsgetDetailstest\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://GETproductsgetDetailstest\mock_attributes.dwl')]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:spy doc:name="Spy Transform Message" doc:id="64549fa6-7097-4a41-aaee-2085c9e35eca" processor="ee:transform">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d006573c-e427-4ed4-b12f-636e1a664376" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:before-call >
+					<munit-tools:assert doc:name="Assert payload" doc:id="4d1154cb-40c8-4460-9c98-ddd4758b0d0b" message="The payload does not match">
+						<munit-tools:that ><![CDATA[#[%dw 2.0
+import GETproductsgetDetailstest::spy_assert_payload
+---
+spy_assert_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:before-call>
+				<munit-tools:after-call >
+					<munit-tools:assert doc:name="Assert payload" doc:id="35986596-f83d-4752-9e55-6bf5161aaf58" message="The payload does not match">
+						<munit-tools:that ><![CDATA[#[%dw 2.0
+import GETproductsgetDetailstest::spy_assert_payload1
+---
+spy_assert_payload1::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:after-call>
+			</munit-tools:spy>
+			<munit:set-event doc:name="Set Input" doc:id="b1ebe9f3-2d43-465a-a998-564c4eabcf37" >
+				<munit:payload value="#[readUrl('classpath://GETproductsgetDetailstest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://GETproductsgetDetailstest\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to GET_products-getDetails" doc:id="1f694370-5061-4fe0-ac34-091b55307cb1" name="GET_products-getDetails"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="5cccd6db-e4fa-4619-884a-2aadb76e72a3" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import GETproductsgetDetailstest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:verify-call doc:name="Verify Transform Message" doc:id="d87f8199-9dcb-4eab-b65d-3c766b5ffda1" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d006573c-e427-4ed4-b12f-636e1a664376" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="GET_stores-list-test" doc:id="c97c0471-0959-4902-b904-fb9a17edbc3e" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Request" doc:id="e56f6be3-2f35-4c04-b970-9189b47c9ae5" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="73d93749-d13e-4ae4-bcd5-448efdc27389" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://GETstoreslisttest\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://GETstoreslisttest\mock_attributes.dwl')]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:spy doc:name="Spy Transform Message" doc:id="6c5d8cf6-4633-4a83-8834-ff630c784663" processor="ee:transform">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c5351cb4-1926-42b1-8ffd-96e2a0dcd21e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:before-call >
+					<munit-tools:assert doc:name="Assert payload" doc:id="b2b1f4f8-b747-40ea-956a-43566423fe91" message="The payload does not match">
+						<munit-tools:that ><![CDATA[#[%dw 2.0
+import GETstoreslisttest::spy_assert_payload
+---
+spy_assert_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:before-call>
+				<munit-tools:after-call >
+					<munit-tools:assert doc:name="Assert payload" doc:id="6cd9cff5-0beb-4de8-a46d-235159a3a7be" message="The payload does not match">
+						<munit-tools:that ><![CDATA[#[%dw 2.0
+import GETstoreslisttest::spy_assert_payload1
+---
+spy_assert_payload1::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:after-call>
+			</munit-tools:spy>
+			<munit:set-event doc:name="Set Input" doc:id="10e8a5ec-3f8d-4ed4-a0a7-ce22e0a147b6" >
+				<munit:payload value="#[readUrl('classpath://GETstoreslisttest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://GETstoreslisttest\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to GET_stores-list" doc:id="cfcda072-f2ac-41ae-b535-471a10446088" name="GET_stores-list"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="37258282-12dd-4382-b89f-ed67280b4c0d" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import GETstoreslisttest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:verify-call doc:name="Verify Transform Message" doc:id="d76a24a1-989e-433c-bbce-1fe2e4bda66d" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c5351cb4-1926-42b1-8ffd-96e2a0dcd21e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="GET_stores-listpreferred-test" doc:id="26b2d101-1dea-4897-bf69-035c08b841c6" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Request" doc:id="eed6a30d-348d-49e3-ae67-bbf9185b2799" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="31ca2999-02fc-4ce5-9113-7d4cc274f03d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://GETstoreslistpreferredtest\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://GETstoreslistpreferredtest\mock_attributes.dwl')]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:spy doc:name="Spy Transform Message" doc:id="88ebf4c5-8d00-4c28-b9a8-126c16e42311" processor="ee:transform">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ab43c166-aeba-443b-b6a2-1aa1850c5482" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:before-call >
+					<munit-tools:assert doc:name="Assert payload" doc:id="1776ccc0-83b1-410b-96af-35dba34b431f" message="The payload does not match">
+						<munit-tools:that ><![CDATA[#[%dw 2.0
+import GETstoreslistpreferredtest::spy_assert_payload
+---
+spy_assert_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:before-call>
+				<munit-tools:after-call >
+					<munit-tools:assert doc:name="Assert payload" doc:id="ba9b5a95-ab96-4ee2-9a84-28ba41497e6a" message="The payload does not match">
+						<munit-tools:that ><![CDATA[#[%dw 2.0
+import GETstoreslistpreferredtest::spy_assert_payload1
+---
+spy_assert_payload1::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:after-call>
+			</munit-tools:spy>
+			<munit:set-event doc:name="Set Input" doc:id="c3809c1c-eff3-4ea8-8504-b5863fe57beb" >
+				<munit:payload value="#[readUrl('classpath://GETstoreslistpreferredtest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://GETstoreslistpreferredtest\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to GET_stores-listpreferred" doc:id="ee84d901-f6bb-41dc-bfe7-26197f1aeee9" name="GET_stores-listpreferred"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="ba618ac9-ee9b-4db1-9949-e97b2a5e7972" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import GETstoreslistpreferredtest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:verify-call doc:name="Verify Transform Message" doc:id="67eef77c-f785-4fad-b382-1b619858d34f" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ab43c166-aeba-443b-b6a2-1aa1850c5482" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

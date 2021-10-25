@@ -9,7 +9,6 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="fd347c9a-5f41-47f2-b65e-523e3c9f9b53" >
 		<http:request-connection host="walmart.p.rapidapi.com" protocol="HTTPS"/>
 	</http:request-config>
-	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="942e4dd7-aa6a-4aff-a5c6-3a26595238e4" i18n="#[payload.data]" />
 	<flow name="GET_products-list" doc:id="d3a2590c-cfef-4745-867e-9af633a8f7a9">
 		<http:listener doc:name="Listener" doc:id="efc450e8-4ee1-4933-92c2-bd13fb602cd9" config-ref="walmart-usecase-httpListenerConfig" path="/products/list"/>
 		<http:request method="GET" doc:name="Request" doc:id="39102c26-f9d7-4ac9-8292-6b0cbca5e72e" config-ref="HTTP_Request_configuration" path="/products/list">
@@ -150,5 +149,41 @@ var a = ps.address
 				</ee:transform>
 			</otherwise>
 		</choice>
+	</flow>
+	<flow name="implementationFlow" doc:id="a5bc3d04-3918-4f26-a34b-81938379e0c7" >
+		<http:listener doc:name="Listener" doc:id="2d44e4d9-fa41-4850-8136-74c5e5f90db5" config-ref="walmart-usecase-httpListenerConfig" path="/orders" allowedMethods="POST"/>
+		<set-variable value="#[payload]" doc:name="inputPayload" doc:id="2143cb2d-ebd9-422e-a262-5a5c2a2e8366" variableName="inputPayload"/>
+		<http:request method="GET" doc:name="getStoreDetails" doc:id="11a79b01-646f-45bc-a09a-af236884f78a" config-ref="HTTP_Request_configuration" path="/stores/list-preferred">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	'X-Rapidapi-Key' : '3023a67861msh0eb707c9fd31682p12e9c9jsn4bd95787f3d4',
+	'X-Rapidapi-Host' : 'walmart.p.rapidapi.com'
+}]]]></http:headers>
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	preferredStoreId : payload.store_id,
+	postalCode : payload.postalCode
+}]]]></http:query-params>
+		</http:request>
+		<set-variable value="#[payload]" doc:name="storeDetails" doc:id="781d4bb1-62d4-4f98-afe5-c9f001262117" variableName="storeDetails" />
+		<ee:transform doc:name="Transform Message" doc:id="3d2e37ff-6594-4d12-a3c4-340472de4890" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "order_id": uuid(),
+  "store_id": 3341,
+  "store_name": "Dallas Neighborhood Market",
+  "store_address": "2305 N Central Expy, Dallas, TX, US (75204)",
+  "store_distance": 0.43,
+  "store_contact_number": "214-953-0460",
+  "product_type_id": vars.inputPayload.product_type_id,
+  "quantity": 10
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 	</flow>
 </mule>
